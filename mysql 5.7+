@@ -1,0 +1,29 @@
+转载自：http://www.lnmp.cn/mysql-57-new-features-json.html
+
+从 MySQL 5.7.8 开始，MySQL 支持原生的 JSON 数据类型。
+类似 varchar，设置 JSON 主要将字段的 type 是 json, 不能设置长度，可以是 NULL  但不能有默认值。
+
+1.json字段的操作
+插入 JSON就是插入 json 格式的字符串，可以是对象的形式，也可以是数组的形式
+INSERT INTO `lnmp` (category, tags) VALUES ('{"id": 1, "name": "lnmp.cn"}', '[1, 2, 3]');
+
+2.MySQL 也有专门的函数 JSON_OBJECT，JSON_ARRAY 生成 json 格式的数据
+INSERT INTO `lnmp` (category, tags) VALUES (JSON_OBJECT("id", 2, "name", "php.net"), JSON_ARRAY(1, 3, 5));
+
+3.查询 JSON
+查询 json 中的数据用 column->path 的形式，其中对象类型 path 这样表示 $.path, 而数组类型则是 $[index]
+SELECT id, category->'$.id', category->'$.name', tags->'$[0]', tags->'$[2]' FROM lnmp;
+
+可以看到对应字符串类型的 category->'$.name' 中还包含着双引号，这其实并不是想要的结果，可以用 JSON_UNQUOTE 函数将双引号去掉，从 MySQL 5.7.13 起也可以通过这个操作符 ->> 这个和 JSON_UNQUOTE 是等价的
+
+4.JSON_REMOVE() 删除 JSON 元素
+UPDATE lnmp SET category = JSON_REMOVE(category, '$.url', '$.host') WHERE id = 1;
+
+5.JSON_REPLACE() 只替换存在的值
+UPDATE lnmp SET category = JSON_REPLACE(category, '$.name', 'php', '$.url', 'http://www.php.net') WHERE id = 2;
+
+6.JSON_SET() 插入新值，并覆盖已经存在的值
+UPDATE lnmp SET category = JSON_SET(category, '$.host', 'www.lnmp.cn', '$.url', 'http://www.lnmp.cn') WHERE id = 1;
+
+7.JSON_INSERT() 插入新值，但不会覆盖已经存在的值
+UPDATE lnmp SET category = JSON_INSERT(category, '$.name', 'lnmp', '$.url', 'www.lnmp.cn') WHERE id = 1;
