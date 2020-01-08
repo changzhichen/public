@@ -1,0 +1,7 @@
+如表a中有b_id=13,32,54,34,7,567,765 在表b中查询id在表a的b_id字段中的数据
+根据,分隔，再根据分隔后的数据进行in查询，
+解决方案如下： 
+使用FIND_IN_SET()查询
+select b.* from b 
+left join a on a.b_id=b.id
+where find_in_set(b.id,a.b_id);
