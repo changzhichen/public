@@ -1,0 +1,42 @@
+@RequestBody注解DATE类型转换异常
+
+1.在使用springboot开发过程中，使用@RequestBody注解接收前端传进的参数时，属性中难免会有日期，但使用@RequestBody注解日期转换会报
+Cannot deserialize value of type java.util.Date from String '2019-xx-xx',下面的方式经过实践可行。
+
+在Date类型属性上加上@JsonDeserialize，具体日期格式可自行修改
+@JsonDeserialize(using = DateTimeDeserializers.class)
+private Date insuranceDate;
+
+
+创建类DateTimeDeserializers：
+
+package com.bolt.common.tool;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import org.apache.commons.lang.StringUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/**
+ * @author changzhichen
+ * @date 2020-01-09 09:49
+ */
+public class DateTimeDeserializers extends JsonDeserializer<Date> {
+  // 格式可自己修改
+	public static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+	@Override
+	public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+		try {
+			if (StringUtils.isBlank(jsonParser.getText())) {
+				return null;
+			}
+			return format.parse(jsonParser.getText());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+}
