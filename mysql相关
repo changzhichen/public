@@ -1,0 +1,2 @@
+1.根据字段排序，当字段存在null和非null值时，mysql默认会将null放到前面，如果想将null放到最后，可用此条件：order by if(isnull(field),1,0),field
+，这样就满足条件了
