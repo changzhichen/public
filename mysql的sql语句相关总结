@@ -6,3 +6,14 @@
 audit_date >= audit_date_begin 
 and audit_date <= concat(audit_date_end,' 24:00:00')
 这样就能查当天的数据了
+3.英文逗号拼接所有列
+-- 避免拼接字段过长，显示不完整的情况
+-- 设置语句必须加在每次的查询之前，之后就会失效了。
+SET SESSION group_concat_max_len = 1024000;
+-- 英文逗号拼接字符串
+SELECT
+	GROUP_CONCAT( NAME ) 
+FROM
+	system_org 
+GROUP BY
+STATUS;
